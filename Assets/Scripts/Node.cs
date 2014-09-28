@@ -1,12 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class Node : MonoBehaviour {
 
 	public double charge = 0.0;
 	public float friction = 0.01f; 
 	public Vector3 velocity = Vector3.zero;
+
+	List<Edge> __edges = null;
+	public List<Edge> Edges {
+		get {
+			return __edges ?? (__edges = new List<Edge>());
+		}
+	}
 	// Use this for initialization
 	void Start () {
 
@@ -46,10 +54,7 @@ public class Node : MonoBehaviour {
 
 	void OnTriggerEnter (Collider Other) {
 		Node other = Other.gameObject.GetComponent<Node>();
-		//RelationMatrix rmat = GameObject.FindObjectOfType<RelationMatrix>();
-		//if(other != null && rmat != null) {
-		//	RelationMatrix[i,j] = true;
-		//}
-		GameObject.FindObjectOfType<NodeManager>().AddRelation(this, other);
+		if(other != null)
+			Edge.BuildEdge(this, other);
 	}
 }

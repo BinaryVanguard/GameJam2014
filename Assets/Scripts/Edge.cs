@@ -18,12 +18,21 @@ public class Edge : MonoBehaviour {
 		transform.localScale = new Vector3(1.0f, (FirstParent.transform.position - SecondParent.transform.position).magnitude / 2.0f ,1.0f);
 	}
 
+	void Remove () {
+		FirstParent.Edges.Remove(this);
+		SecondParent.Edges.Remove(this);
+		Destroy (this.gameObject);
+	}
+
 	public static Edge BuildEdge(Node one, Node two) {
 		//GameObject go = GameObject.FindGameObjectWithTag("Edge");
 		Edge [] edges = Resources.FindObjectsOfTypeAll<Edge>();
 		Edge e = (Edge)Instantiate(edges[0]);
 		e.FirstParent = one;
 		e.SecondParent = two;	
+
+		e.FirstParent.Edges.Add (e);
+		e.SecondParent.Edges.Add(e);
 		return e;
 	}
 }
