@@ -16,10 +16,14 @@ public class CameraControl : MonoBehaviour {
 	public float restSize = 100f;
 	public Vector3 restPosition = new Vector3(0f, 0f, -10f);
 	public Quaternion restRotation = new Quaternion ();
+
 	public float damper = 0.0f;
+
 	public float focusScale = 1f;
 
-	const float MathPiDiv2 = Mathf.PI / 2f;
+	// privatize 
+	private Quaternion camRotation = new Quaternion();
+	public Vector3 tgtRotationAngles = new Vector3();
 
 	private 
 	// Use this for initialization
@@ -39,20 +43,22 @@ public class CameraControl : MonoBehaviour {
 		if (Input.GetButtonDown("Fire1")) {
 
 
-			Vector3 mousePosition = Input.mousePosition;
-			mousePosition.z = 10f;
+			Vector3 mousePosition0 = Input.mousePosition;
+			mousePosition0.z = -10f;
+			Vector3 mousePosition1 = camera.ScreenToWorldPoint(mousePosition0);
+
 			
-			Vector2 v = camera.ScreenToWorldPoint(mousePosition);
+			Ray ray = new Ray(mousePosition1, new Vector3(0f,0f,10f));
+			Debug.Log (camera.ScreenToWorldPoint(mousePosition1));
+			RaycastHit[] hits = Physics.RaycastAll(ray);
 			
-			Collider2D[] col = Physics2D.OverlapPointAll(v);
-			
-			if(col.Length > 0){
+			if(hits.Length > 0 && hits[0].collider != null){
 				//foreach(Collider2D c in col)
 				//{
-				Collider2D c = col[0];  // select only the top hit
-					Debug.Log("Collided with: " + c.collider2D.gameObject.name);
-					Edge e = c.collider2D.gameObject.GetComponent(typeof(Edge)) as Edge;
-					if (e != null) focusEdge = e;
+				RaycastHit hit = hits[0];
+				Debug.Log("Collided with: " + hit.collider.gameObject.name);
+				Edge e = hit.collider.gameObject.GetComponent(typeof(Edge)) as Edge;
+				if (e != null) focusEdge = e;
 				//}
 			}
 
@@ -86,18 +92,25 @@ public class CameraControl : MonoBehaviour {
 		}
 
 		if (focusEdge != null) {
-			// rotation and center and size 
-			// camera.transform.rotation = focusEdge.transform.rotation;
-			Quaternion camRotation = camera.transform.rotation;
-			// camPosition.eulerAngles = Vector3.Lerp(camPosition.eulerAngles, new Vector3(camPosition.eulerAngles.x, camPosition.eulerAngles.y, -focusEdge.transform.rotation.eulerAngles.z + MathPiDiv2), Time.deltaTime * damper);
-			camRotation.eulerAngles = new Vector3(camRotation.eulerAngles.x, camRotation.eulerAngles.y, focusEdge.transform.rotation.eulerAngles.z -90f );
+
+			camRotation = camera.transform.rotation;
+			float tgtRotZ = focusEdge.transform.rotation.eulerAngles.z -90f ;
+			if (tgtRotZ < 0) tgtRotZ += 360.0f;
+			tgtRotationAngles = new Vector3(camRotation.eulerAngles.x, camRotation.eulerAngles.y, tgtRotZ );
+			camRotation.eulerAngles = Vector3.Lerp(camRotation.eulerAngles, tgtRotationAngles, Time.deltaTime * damper);
 			camera.transform.rotation = camRotation;
 
-			Vector3 position = focusEdge.transform.position;
-			position.z = camera.transform.position.z;
-			camera.transform.position = position;
+			Vector3 camPosition = camera.transform.position;
+			Vector3 tgtPosition = focusEdge.transform.position;
+			camPosition.z = camera.transform.position.z;
+			tgtPosition.z = camPosition.z;
+			camPosition = Vector3.Lerp(camPosition, tgtPosition, Time.deltaTime * damper);
+			camera.transform.position = camPosition;
 
-			camera.orthographicSize = focusEdge.transform.localScale.y * focusScale;
+			float camSize = camera.orthographicSize;
+			float tgtSize = focusEdge.transform.localScale.y * focusScale;
+			camSize = Mathf.Lerp(camSize, tgtSize, Time.deltaTime * damper);
+			camera.orthographicSize = camSize;
 		}
 	}
 
