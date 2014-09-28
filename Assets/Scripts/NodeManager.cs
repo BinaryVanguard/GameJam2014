@@ -35,9 +35,6 @@ public class NodeManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-//		Nodes[0].velocity += Nodes[0].RepulsiveForce(Nodes[1]);
-//		Nodes[0].velocity += Nodes[0].RepulsiveForce(Nodes[2]);
-
 		for (int i = 1; i < Nodes.Count; ++i) {
 			Node node = Nodes[i];
 			for(int j = 0; j < OldNodes.Count;	 ++j) {
@@ -58,28 +55,10 @@ public class NodeManager : MonoBehaviour {
 		//OldNodes.Clear();
 		for(int i = 0; i < Nodes.Count; ++i)
 			OldNodes[i] = Nodes[i];  // <-- can we move this to the end of the above loop?
-
-//		Edges = Edges ?? new List<Edge>();
-//		for(int i = Edges.Count - 1; i >= 0; --i)
-//			if(Edges[i] != null)
-//				GameObject.Destroy(Edges[i].gameObject);
-
-//		Edges.Clear();
-//		for (int i = 0; i < Nodes.Count; ++i)
-//			for(int j = i+1; j < Nodes.Count; ++j)
-//			{
-//				if(RelationMatrix[i,j]){
-//					GameObject obj = (GameObject)GameObject.Instantiate(GameEdge);
-//					Edge edge = obj.GetComponent<Edge>();
-//					if(edge != null) {
-////						Edges.Add(edge);
-//						edge.FirstParent = Nodes[i];
-//						edge.SecondParent = Nodes[j];
-//					}
-//				}
-//			}
 	}
 
-
+	public void AddRelation(Node one, Node two) {
+		RelationMatrix.AddRelation(one, two);
+	}
 }
 

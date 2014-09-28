@@ -43,4 +43,13 @@ public class Node : MonoBehaviour {
 		Vector3 toNode = otherPos - position;
 		return K * (toNode - toNode.normalized * length) / 2f;
 	}
+
+	void OnTriggerEnter (Collider Other) {
+		Node other = Other.gameObject.GetComponent<Node>();
+		//RelationMatrix rmat = GameObject.FindObjectOfType<RelationMatrix>();
+		//if(other != null && rmat != null) {
+		//	RelationMatrix[i,j] = true;
+		//}
+		GameObject.FindObjectOfType<NodeManager>().AddRelation(this, other);
+	}
 }

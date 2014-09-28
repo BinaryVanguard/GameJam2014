@@ -6,8 +6,9 @@ using System;
 public class RelationMatrix {
 	List<List<Edge>> Relations;
 	int size;
-	int nGroups = 3;
+	int nGroups = (int)(UnityEngine.Random.value * 10) + 1;
 	int nGroupSize = 4;
+	int maxGroupSize = 6;
 
 	public RelationMatrix(Node [] Nodes) {
 		Relations = new List<List<Edge>>();
@@ -23,6 +24,9 @@ public class RelationMatrix {
 
 		List<int> groupLeaders = new List<int>();
 		for(int i = 0; i < nGroups; ++i){
+			if(indicies.Count < 2)
+				break;
+			nGroupSize = (int)Math.Min(UnityEngine.Random.value * maxGroupSize + 1, indicies.Count);
 			List<int> groupIndexs = new List<int>();
 			for(int j = 0; j < nGroupSize; ++j) {
 				int index = (int)(UnityEngine.Random.value * (indicies.Count - 1));
@@ -46,7 +50,6 @@ public class RelationMatrix {
 
 	public bool this [int i, int j] {
 		get { 
-			//Debug.Log(string.Format("{0}, {1}, {2}, {3}", Relations.Count, Relations[Math.Max(i,j)].Count, j, i));
 			if(i > j) {
 				return Relations[j][i-j-1] != null;
 			}
@@ -81,5 +84,15 @@ public class RelationMatrix {
 				}
 			}
 		}
+	}
+
+	public void AddRelation(Node one, Node two) {
+		List<Node> nodes = new List<Node>(GameObject.FindObjectsOfType<Node>());
+		int i = nodes.FindIndex(o => o.Equals(one));
+		int j = nodes.FindIndex(o => o.Equals(two));
+		if(j > i)
+			Relations[i][j - i - 1] = Edge.BuildEdge(one, two);
+		else
+			Relations[j][i - j-1] = Edge.BuildEdge(one, two);
 	}
 }
